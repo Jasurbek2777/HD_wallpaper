@@ -24,6 +24,7 @@ import com.example.newhdwallpaper.retrofit.ApiClient
 import com.example.newhdwallpaper.retrofit.ApiService
 import com.example.newhdwallpaper.room.AppDataBase
 import com.example.newhdwallpaper.room.entity.WallpaperEntity
+import com.example.newhdwallpaper.utils.NetworkHelper
 import com.example.newhdwallpaper.viewmodel.PhotoViewModel
 import com.example.newhdwallpaper.viewmodel.ViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
@@ -41,6 +42,7 @@ class InnerRvFragment : Fragment() {
     lateinit var apiService: ApiService
     lateinit var db: AppDataBase
     private var param2: String? = null
+    lateinit var networkHelper: NetworkHelper
     var connec: ConnectivityManager? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +61,7 @@ class InnerRvFragment : Fragment() {
         connec = activity?.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
         binding = FragmentInnerRvBinding.inflate(inflater, container, false)
         binding.refreshLayout.isRefreshing = true
-
+        networkHelper = NetworkHelper(requireContext())
         setData()
         binding.refreshLayout.isRefreshing = false
         binding.refreshLayout.setOnRefreshListener {
@@ -70,9 +72,7 @@ class InnerRvFragment : Fragment() {
     }
 
     fun setData() {
-        if (connec?.getNetworkInfo(0)?.state == NetworkInfo.State.CONNECTED ||
-            connec?.getNetworkInfo(1)?.state == NetworkInfo.State.CONNECTED
-        ) {
+        if (networkHelper.isNetworkConnected()) {
             photoViewModel =
                 ViewModelProviders.of(
                     this,
